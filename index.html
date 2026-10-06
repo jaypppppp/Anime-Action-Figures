@@ -26,6 +26,17 @@
     button{cursor:pointer;border:0}
     .container{width:min(1180px,92%);margin:auto}
 
+    /* Auth Overlay Guard */
+    .auth-guard {
+      position: fixed;
+      inset: 0;
+      background: var(--bg);
+      z-index: 100;
+      display: grid;
+      place-items: center;
+      padding: 20px;
+    }
+
     /* Header */
     header{
       position:sticky;top:0;z-index:20;backdrop-filter:blur(18px);
@@ -54,7 +65,7 @@
       display:inline-grid;place-items:center;min-width:19px;height:19px;padding:0 5px;
       background:var(--pink);border-radius:99px;font-size:.72rem;margin-left:4px
     }
-    .logout-btn{display:none;background:#302038;color:#ff9bc7;border:1px solid rgba(255,79,163,.2)}
+    .logout-btn{background:#302038;color:#ff9bc7;border:1px solid rgba(255,79,163,.2)}
     .menu{display:none}
 
     /* Hero */
@@ -126,17 +137,15 @@
     .foot{display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap}
     .foot strong{color:#fff}
 
-    /* Modal */
-    .modal-wrap{position:fixed;inset:0;background:rgba(0,0,0,.72);backdrop-filter:blur(8px);display:none;place-items:center;z-index:50;padding:20px}
+    /* Modal / Auth Form */
     .modal{width:min(420px,100%);background:#151528;border:1px solid var(--line);border-radius:22px;padding:28px;box-shadow:var(--shadow);position:relative}
-    .close{position:absolute;right:16px;top:13px;background:none;color:#aaa;font-size:1.4rem}
     .modal h3{font-size:1.7rem;margin-bottom:7px}.modal p{color:var(--muted);font-size:.9rem;margin-bottom:20px}
     .field{display:grid;gap:7px;margin-bottom:13px}.field label{font-size:.82rem;color:#ccc}
     .field input{width:100%;padding:12px 13px;border-radius:11px;border:1px solid var(--line);background:#0e0e1d;color:#fff;outline:none}
     .field input:focus{border-color:var(--purple)}
     .form-btn{width:100%;padding:12px;border-radius:11px;background:linear-gradient(135deg,var(--pink),var(--purple));color:#fff;font-weight:900;margin-top:5px}
     .switch{text-align:center;color:var(--muted);font-size:.83rem;margin-top:15px}.switch a{color:var(--cyan);font-weight:800}
-    .account{display:none;align-items:center;gap:9px;color:#ddd;font-size:.86rem;font-weight:800}
+    .account{display:flex;align-items:center;gap:9px;color:#ddd;font-size:.86rem;font-weight:800}
     .avatar{width:31px;height:31px;border-radius:50%;display:grid;place-items:center;background:linear-gradient(135deg,var(--pink),var(--purple))}
     .toast{position:fixed;right:20px;bottom:20px;background:#fff;color:#111;padding:13px 17px;border-radius:12px;font-weight:800;box-shadow:var(--shadow);transform:translateY(100px);opacity:0;transition:.3s;z-index:80}
     .toast.show{transform:none;opacity:1}
@@ -145,7 +154,7 @@
       nav{display:none}.menu{display:block}.hero-grid{grid-template-columns:1fr}.hero-art{min-height:330px}.grid{grid-template-columns:repeat(2,1fr)}
     }
     @media(max-width:600px){
-      .nav{height:66px}.logo{font-size:1.1rem}.actions .login-btn{display:none}.account{display:none!important}
+      .nav{height:66px}.logo{font-size:1.1rem}
       h1{letter-spacing:-3px}.hero{padding-top:50px}.hero-art{min-height:290px}.figure-silhouette{font-size:6.5rem}
       .section-head{align-items:flex-start;flex-direction:column}.controls{width:100%}.search{min-width:0;width:100%}
       .grid{grid-template-columns:1fr 1fr;gap:11px}.pic{height:175px;font-size:5rem}.info{padding:11px}.name{font-size:.92rem}
@@ -154,114 +163,124 @@
   </style>
 </head>
 <body>
-<header>
-  <div class="container nav">
-    <a href="#" class="logo">
-      <img src="Naruto’s Fiery Nine-Tails Avatar.png" alt="Shonen Vault Logo" class="logo-img">
-      <span>Shonen</span><i>Vault</i>
-    </a>
-    <nav>
-      <a href="#shop">Shop</a><a href="#featured">Featured</a><a href="#about">About</a>
-    </nav>
-    <div class="actions">
-      <button class="icon-btn" onclick="scrollToShop()">🔎</button>
-      <button class="icon-btn" onclick="showCart()">🛒 <span id="cartCount" class="cart-count">0</span></button>
-      <div id="account" class="account"><span class="avatar">✦</span><span id="userName">Guest</span></div>
-      <button id="loginBtn" class="login-btn" onclick="openModal('login')">Login</button>
-      <button id="logoutBtn" class="login-btn logout-btn" onclick="logout()">Logout</button>
-      <button class="icon-btn menu" onclick="alert('Use the Shop, Featured, and About sections below.')">☰</button>
-    </div>
-  </div>
-</header>
 
-<main>
-  <section class="hero">
-    <div class="container hero-grid">
-      <div>
-        <div class="eyebrow">⚡ Naruto • Dragon Ball • One Piece</div>
-        <h1>POWER UP<br><span class="gradient">YOUR SHELF.</span></h1>
-        <p>Collect legendary anime action figures inspired by Naruto, Dragon Ball, and One Piece. Build your ultimate shonen display.</p>
-        <div class="hero-buttons">
-          <button class="primary" onclick="scrollToShop()">Explore Figures →</button>
-          <button class="secondary" onclick="openModal('signup')">Create Account</button>
-        </div>
-      </div>
-      <div class="hero-art">
-        <div class="orb"><div class="figure-silhouette">⚡</div></div>
-        <div class="floating f1">🔥 Limited Drops</div>
-        <div class="floating f2">🍥 Fan Favorites</div>
-        <div class="floating f3">☀️ New Arrival</div>
-      </div>
-    </div>
-  </section>
-
-  <section id="featured" class="section">
-    <div class="container">
-      <div class="section-head">
-        <div><h2>Why Shonen Vault?</h2><p>Built for collectors, fans, and anime lovers.</p></div>
-      </div>
-      <div class="features">
-        <div class="feature"><b>📦 Collector Packaging</b><span>Figures arrive protected and ready for display.</span></div>
-        <div class="feature"><b>✨ Curated Drops</b><span>Discover popular characters and limited releases.</span></div>
-        <div class="feature"><b>🔐 Member Accounts</b><span>Keep your cart and profile stored in your browser.</span></div>
-      </div>
-    </div>
-  </section>
-
-  <section id="shop" class="section">
-    <div class="container">
-      <div class="section-head">
-        <div><h2>Featured Figures</h2><p>Find a character for your collection.</p></div>
-        <div class="controls">
-          <input id="search" class="search" placeholder="Search figures..." oninput="renderProducts()">
-          <select id="filter" class="filter" onchange="renderProducts()">
-            <option value="all">All Series</option><option value="naruto">Naruto</option>
-            <option value="dragonball">Dragon Ball</option><option value="onepiece">One Piece</option>
-          </select>
-        </div>
-      </div>
-      <div id="productGrid" class="grid"></div>
-    </div>
-  </section>
-
-  <section id="about" class="section">
-    <div class="container">
-      <div class="section-head"><div><h2>Your ultimate shonen collection.</h2><p>Collect. Display. Repeat.</p></div></div>
-      <div class="feature" style="max-width:800px">
-        <strong>Shonen Vault is a demo storefront.</strong><br><br>
-        Product names and prices are fictional examples. Login, logout, cart, search, filters, and cart persistence are implemented entirely in this single HTML file using browser LocalStorage.
-      </div>
-    </div>
-  </section>
-</main>
-
-<footer>
-  <div class="container foot"><div><strong>✦ Shonen Vault</strong><br>Naruto • Dragon Ball • One Piece collectibles.</div><div>© 2026 Shonen Vault • Demo Store</div></div>
-</footer>
-
-<div id="modalWrap" class="modal-wrap" onclick="if(event.target===this)closeModal()">
+<!-- Login / Sign-up Screen (Required to open store) -->
+<div id="authGuard" class="auth-guard">
   <div class="modal">
-    <button class="close" onclick="closeModal()">×</button>
     <div id="loginForm">
-      <h3>Welcome back ✦</h3><p>Log in to manage your Shonen Vault account.</p>
+      <h3>Welcome back ✦</h3>
+      <p>Log in to access the Shonen Vault storefront.</p>
       <form onsubmit="login(event)">
         <div class="field"><label>Email</label><input id="loginEmail" type="email" required placeholder="you@example.com"></div>
         <div class="field"><label>Password</label><input type="password" required placeholder="••••••••"></div>
         <button class="form-btn">Login</button>
       </form>
-      <div class="switch">New collector? <a href="#" onclick="openModal('signup');return false">Create an account</a></div>
+      <div class="switch">New collector? <a href="#" onclick="switchAuthView('signup');return false">Create an account</a></div>
     </div>
+    
     <div id="signupForm" style="display:none">
-      <h3>Join the crew ✨</h3><p>Create a demo Shonen Vault account.</p>
+      <h3>Join the crew ✨</h3>
+      <p>Create an account to open Shonen Vault.</p>
       <form onsubmit="signup(event)">
         <div class="field"><label>Display name</label><input id="signupName" required placeholder="Your anime name"></div>
-        <div class="field"><label>Email</label><input type="email" required placeholder="you@example.com"></div>
+        <div class="field"><label>Email</label><input id="signupEmail" type="email" required placeholder="you@example.com"></div>
         <div class="field"><label>Password</label><input type="password" minlength="6" required placeholder="At least 6 characters"></div>
         <button class="form-btn">Create Account</button>
       </form>
-      <div class="switch">Already a member? <a href="#" onclick="openModal('login');return false">Login</a></div>
+      <div class="switch">Already a member? <a href="#" onclick="switchAuthView('login');return false">Login</a></div>
     </div>
   </div>
+</div>
+
+<!-- Main Website Content (Hidden until logged in) -->
+<div id="storeContent" style="display:none">
+  <header>
+    <div class="container nav">
+      <a href="#" class="logo">
+        <img src="Naruto’s Fiery Nine-Tails Avatar.png" alt="Shonen Vault Logo" class="logo-img">
+        <span>Shonen</span><i>Vault</i>
+      </a>
+      <nav>
+        <a href="#shop">Shop</a><a href="#featured">Featured</a><a href="#about">About</a>
+      </nav>
+      <div class="actions">
+        <button class="icon-btn" onclick="scrollToShop()">🔎</button>
+        <button class="icon-btn" onclick="showCart()">🛒 <span id="cartCount" class="cart-count">0</span></button>
+        <div id="account" class="account"><span class="avatar">✦</span><span id="userName">Guest</span></div>
+        <button id="logoutBtn" class="login-btn logout-btn" onclick="logout()">Logout</button>
+        <button class="icon-btn menu" onclick="alert('Use the Shop, Featured, and About sections below.')">☰</button>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="container hero-grid">
+        <div>
+          <div class="eyebrow">⚡ Naruto • Dragon Ball • One Piece</div>
+          <h1>POWER UP<br><span class="gradient">YOUR SHELF.</span></h1>
+          <p>Collect legendary anime action figures inspired by Naruto, Dragon Ball, and One Piece. Build your ultimate shonen display.</p>
+          <div class="hero-buttons">
+            <button class="primary" onclick="scrollToShop()">Explore Figures →</button>
+          </div>
+        </div>
+        <div class="hero-art">
+          <div class="orb"><div class="figure-silhouette">⚡</div></div>
+          <div class="floating f1">🔥 Limited Drops</div>
+          <div class="floating f2">🍥 Fan Favorites</div>
+          <div class="floating f3">☀️ New Arrival</div>
+        </div>
+      </div>
+    </section>
+
+    <section id="featured" class="section">
+      <div class="container">
+        <div class="section-head">
+          <div><h2>Why Shonen Vault?</h2><p>Built for collectors, fans, and anime lovers.</p></div>
+        </div>
+        <div class="features">
+          <div class="feature"><b>📦 Collector Packaging</b><span>Figures arrive protected and ready for display.</span></div>
+          <div class="feature"><b>✨ Curated Drops</b><span>Discover popular characters and limited releases.</span></div>
+          <div class="feature"><b>🔐 Member Accounts</b><span>Keep your cart and profile stored in your browser.</span></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="shop" class="section">
+      <div class="container">
+        <div class="section-head">
+          <div><h2>Featured Figures</h2><p>Find a character for your collection.</p></div>
+          <div class="controls">
+            <input id="search" class="search" placeholder="Search figures..." oninput="renderProducts()">
+            <select id="filter" class="filter" onchange="renderProducts()">
+              <option value="all">All Series</option>
+              <option value="naruto">Naruto</option>
+              <option value="dragonball">Dragon Ball</option>
+              <option value="onepiece">One Piece</option>
+            </select>
+          </div>
+        </div>
+        <div id="productGrid" class="grid"></div>
+      </div>
+    </section>
+
+    <section id="about" class="section">
+      <div class="container">
+        <div class="section-head"><div><h2>Your ultimate shonen collection.</h2><p>Collect. Display. Repeat.</p></div></div>
+        <div class="feature" style="max-width:800px">
+          <strong>Shonen Vault is a demo storefront.</strong><br><br>
+          Product names and prices are fictional examples. Login, logout, cart, search, filters, and cart persistence are implemented entirely in this single HTML file using browser LocalStorage.
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="container foot">
+      <div><strong>✦ Shonen Vault</strong><br>Naruto • Dragon Ball • One Piece collectibles.</div>
+      <div>© 2026 Shonen Vault • Demo Store</div>
+    </div>
+  </footer>
 </div>
 
 <div id="toast" class="toast"></div>
@@ -287,7 +306,7 @@ function renderProducts(){
   document.getElementById("productGrid").innerHTML=list.map(p=>`
     <article class="card">
       ${p.badge?`<span class="badge">${p.badge}</span>`:""}
-      <div class="pic">${p.img ? `<img src="${p.img}" alt="${p.name}" class="card-img">` : p.emoji}</div>
+      <div class="pic">${p.img ? `<img src="${p.img}" alt="${p.name}" class="card-img">` : '⚡'}</div>
       <div class="info">
         <div class="series">${p.series}</div><div class="name">${p.name}</div>
         <div class="stars">${p.rating}</div>
@@ -295,76 +314,113 @@ function renderProducts(){
       </div>
     </article>`).join("") || `<div style="grid-column:1/-1;text-align:center;color:#aaa;padding:40px">No figures found.</div>`;
 }
+
 function addToCart(id){
   cart.push(id); localStorage.setItem("nekoCart",JSON.stringify(cart)); updateCart();
   toast("Figure added to your collection 🛒");
 }
+
 function updateCart(){document.getElementById("cartCount").textContent=cart.length}
+
 function showCart(){
   if(!cart.length){toast("Your cart is empty.");return}
   const counts={};cart.forEach(id=>counts[id]=(counts[id]||0)+1);
-  let total=0;let lines=Object.entries(counts).map(([id,n])=>{const p=products.find(x=>x.id==id);total+=p.price*n;return `${p.emoji||'🖼️'} ${p.name} ×${n} — $${(p.price*n).toFixed(2)}`});
-  alert("YOUR NEKOVERSE CART\n\n"+lines.join("\n")+"\n\nTotal: $"+total.toFixed(2)+"\n\nDemo checkout — no payment is processed.");
+  let total=0;let lines=Object.entries(counts).map(([id,n])=>{const p=products.find(x=>x.id==id);total+=p.price*n;return `🖼️ ${p.name} ×${n} — $${(p.price*n).toFixed(2)}`});
+  alert("YOUR SHONEN VAULT CART\n\n"+lines.join("\n")+"\n\nTotal: $"+total.toFixed(2)+"\n\nDemo checkout — no payment is processed.");
 }
-function openModal(type){
-  document.getElementById("modalWrap").style.display="grid";
+
+function switchAuthView(type){
   document.getElementById("loginForm").style.display=type==="login"?"block":"none";
   document.getElementById("signupForm").style.display=type==="signup"?"block":"none";
 }
-function closeModal(){document.getElementById("modalWrap").style.display="none"}
+
 function getUsers(){
   return JSON.parse(localStorage.getItem("shonenUsers") || "[]");
 }
+
 function login(e){
   e.preventDefault();
   const email=document.getElementById("loginEmail").value.trim().toLowerCase();
   const password=e.target.querySelector('input[type="password"]').value;
   const users=getUsers();
-  const account=users.find(u=>u.email===email && u.password===password);
 
-  if(!account){
-    toast("Account not found or password is incorrect.");
+  // Check if account exists
+  const existingUser = users.find(u => u.email === email);
+
+  if (!existingUser) {
+    const goToSignup = confirm("Account not registered!\n\nNo account was found with this email address. Would you like to create an account now?");
+    if (goToSignup) {
+      switchAuthView('signup');
+      document.getElementById('signupEmail').value = email;
+    }
     return;
   }
 
-  localStorage.setItem("nekoUser",account.name);
-  closeModal();
-  updateUser();
-  toast("Welcome back, "+account.name+" ⚡");
+  // Check password match
+  if (existingUser.password !== password) {
+    alert("Incorrect password!\n\nPlease check your credentials and try again.");
+    return;
+  }
+
+  // Login successful
+  localStorage.setItem("nekoUser", existingUser.name);
+  checkAuth();
+  toast("Welcome back, " + existingUser.name + " ⚡");
 }
+
 function signup(e){
   e.preventDefault();
   const name=document.getElementById("signupName").value.trim();
-  const email=e.target.querySelector('input[type="email"]').value.trim().toLowerCase();
+  const email=document.getElementById("signupEmail").value.trim().toLowerCase();
   const password=e.target.querySelector('input[type="password"]').value;
   const users=getUsers();
 
   if(users.some(u=>u.email===email)){
-    toast("An account with this email already exists.");
+    alert("An account with this email already exists.\n\nPlease log in instead.");
+    switchAuthView('login');
+    document.getElementById('loginEmail').value = email;
     return;
   }
 
   users.push({name,email,password});
   localStorage.setItem("shonenUsers",JSON.stringify(users));
   localStorage.setItem("nekoUser",name);
-  closeModal();
-  updateUser();
+  checkAuth();
   toast("Account created! Welcome to Shonen Vault ✨");
 }
-function logout(){localStorage.removeItem("nekoUser");updateUser();toast("You have been logged out.");}
-function updateUser(){
-  const user=localStorage.getItem("nekoUser");
-  document.getElementById("loginBtn").style.display=user?"none":"block";
-  document.getElementById("logoutBtn").style.display=user?"block":"none";
-  document.getElementById("account").style.display=user?"flex":"none";
-  if(user)document.getElementById("userName").textContent=user;
+
+function logout(){
+  localStorage.removeItem("nekoUser");
+  checkAuth();
+  toast("You have been logged out.");
 }
+
+function checkAuth(){
+  const user=localStorage.getItem("nekoUser");
+  const authGuard=document.getElementById("authGuard");
+  const storeContent=document.getElementById("storeContent");
+
+  if(user){
+    authGuard.style.display="none";
+    storeContent.style.display="block";
+    document.getElementById("userName").textContent=user;
+  } else {
+    authGuard.style.display="grid";
+    storeContent.style.display="none";
+  }
+}
+
 function toast(msg){
   const t=document.getElementById("toast");t.textContent=msg;t.classList.add("show");
   clearTimeout(window.toastTimer);window.toastTimer=setTimeout(()=>t.classList.remove("show"),2500);
 }
+
 function scrollToShop(){document.getElementById("shop").scrollIntoView({behavior:"smooth"})}
-renderProducts();updateCart();updateUser();
+
+// Initialize
+checkAuth();
+renderProducts();
+updateCart();
 </script>
 </body>
 </html>
