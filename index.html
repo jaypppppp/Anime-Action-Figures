@@ -144,7 +144,6 @@
     .field input{width:100%;padding:12px 13px;border-radius:11px;border:1px solid var(--line);background:#0e0e1d;color:#fff;outline:none}
     .field input:focus{border-color:var(--purple)}
     .form-btn{width:100%;padding:12px;border-radius:11px;background:linear-gradient(135deg,var(--pink),var(--purple));color:#fff;font-weight:900;margin-top:5px}
-    .switch{text-align:center;color:var(--muted);font-size:.83rem;margin-top:15px}.switch a{color:var(--cyan);font-weight:800}
     .account{display:flex;align-items:center;gap:9px;color:#ddd;font-size:.86rem;font-weight:800}
     .avatar{width:31px;height:31px;border-radius:50%;display:grid;place-items:center;background:linear-gradient(135deg,var(--pink),var(--purple))}
     .toast{position:fixed;right:20px;bottom:20px;background:#fff;color:#111;padding:13px 17px;border-radius:12px;font-weight:800;box-shadow:var(--shadow);transform:translateY(100px);opacity:0;transition:.3s;z-index:80}
@@ -164,30 +163,17 @@
 </head>
 <body>
 
-<!-- Login / Sign-up Screen (Required to open store) -->
+<!-- Login Screen (Required to open store) -->
 <div id="authGuard" class="auth-guard">
   <div class="modal">
     <div id="loginForm">
       <h3>Welcome back ✦</h3>
       <p>Log in to access the Shonen Vault storefront.</p>
       <form onsubmit="login(event)">
-        <div class="field"><label>Email</label><input id="loginEmail" type="email" required placeholder="you@example.com"></div>
-        <div class="field"><label>Password</label><input type="password" required placeholder="••••••••"></div>
+        <div class="field"><label>Username</label><input id="loginUsername" type="text" required placeholder="Enter username"></div>
+        <div class="field"><label>Password</label><input id="loginPassword" type="password" required placeholder="••••••••"></div>
         <button class="form-btn">Login</button>
       </form>
-      <div class="switch">New collector? <a href="#" onclick="switchAuthView('signup');return false">Create an account</a></div>
-    </div>
-    
-    <div id="signupForm" style="display:none">
-      <h3>Join the crew ✨</h3>
-      <p>Create an account to open Shonen Vault.</p>
-      <form onsubmit="signup(event)">
-        <div class="field"><label>Display name</label><input id="signupName" required placeholder="Your anime name"></div>
-        <div class="field"><label>Email</label><input id="signupEmail" type="email" required placeholder="you@example.com"></div>
-        <div class="field"><label>Password</label><input type="password" minlength="6" required placeholder="At least 6 characters"></div>
-        <button class="form-btn">Create Account</button>
-      </form>
-      <div class="switch">Already a member? <a href="#" onclick="switchAuthView('login');return false">Login</a></div>
     </div>
   </div>
 </div>
@@ -329,76 +315,55 @@ function showCart(){
   alert("YOUR SHONEN VAULT CART\n\n"+lines.join("\n")+"\n\nTotal: $"+total.toFixed(2)+"\n\nDemo checkout — no payment is processed.");
 }
 
-function switchAuthView(type){
-  document.getElementById("loginForm").style.display=type==="login"?"block":"none";
-  document.getElementById("signupForm").style.display=type==="signup"?"block":"none";
-}
-
-function getUsers(){
-  return JSON.parse(localStorage.getItem("shonenUsers") || "[]");
-}
-
 function login(e){
   e.preventDefault();
-  const email=document.getElementById("loginEmail").value.trim().toLowerCase();
-  const password=e.target.querySelector('input[type="password"]').value;
-  const users=getUsers();
+  const username = document.getElementById("loginUsername").value.trim();
+  const password = document.getElementById("loginPassword").value;
 
-  // Check if account exists
-  const existingUser = users.find(u => u.email === email);
-
-  if (!existingUser) {
-    const goToSignup = confirm("Account not registered!\n\nNo account was found with this email address. Would you like to create an account now?");
-    if (goToSignup) {
-      switchAuthView('signup');
-      document.getElementById('signupEmail').value = email;
-    }
+  // Validate credentials against hardcoded user
+  if (username !== "Desiree22") {
+    alert("Account not registered!\n\nNo user found with the username '" + username + "'.");
     return;
   }
 
-  // Check password match
-  if (existingUser.password !== password) {
+  if (password !== "Desiree22") {
     alert("Incorrect password!\n\nPlease check your credentials and try again.");
     return;
   }
 
   // Login successful
-  localStorage.setItem("nekoUser", existingUser.name);
+  localStorage.setItem("nekoUser", username);
   checkAuth();
-  toast("Welcome back, " + existingUser.name + " ⚡");
-}
-
-function signup(e){
-  e.preventDefault();
-  const name=document.getElementById("signupName").value.trim();
-  const email=document.getElementById("signupEmail").value.trim().toLowerCase();
-  const password=e.target.querySelector('input[type="password"]').value;
-  const users=getUsers();
-
-  if(users.some(u=>u.email===email)){
-    alert("An account with this email already exists.\n\nPlease log in instead.");
-    switchAuthView('login');
-    document.getElementById('loginEmail').value = email;
-    return;
-  }
-
-  users.push({name,email,password});
-  localStorage.setItem("shonenUsers",JSON.stringify(users));
-  localStorage.setItem("nekoUser",name);
-  checkAuth();
-  toast("Account created! Welcome to Shonen Vault ✨");
+  toast("Welcome back, " + username + " ⚡");
 }
 
 function logout(){
+  // 1. Remove the active user session
   localStorage.removeItem("nekoUser");
+
+  // 2. Clear cart data
+  cart = [];
+  localStorage.removeItem("nekoCart");
+  updateCart();
+
+  // 3. Reset input fields & filters
+  document.getElementById("loginUsername").value = "";
+  document.getElementById("loginPassword").value = "";
+  const searchInput = document.getElementById("search");
+  const filterSelect = document.getElementById("filter");
+  if (searchInput) searchInput.value = "";
+  if (filterSelect) filterSelect.value = "all";
+  renderProducts();
+
+  // 4. Update auth state
   checkAuth();
   toast("You have been logged out.");
 }
 
 function checkAuth(){
-  const user=localStorage.getItem("nekoUser");
-  const authGuard=document.getElementById("authGuard");
-  const storeContent=document.getElementById("storeContent");
+  const user = localStorage.getItem("nekoUser");
+  const authGuard = document.getElementById("authGuard");
+  const storeContent = document.getElementById("storeContent");
 
   if(user){
     authGuard.style.display="none";
